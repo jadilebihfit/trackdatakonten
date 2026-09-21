@@ -1,0 +1,35 @@
+{
+  "name": "asistent-creator",
+  "version": "1.0.0",
+  "description": "Multi-Platform Social Media Analytics & AI Content Auditor",
+  "main": "src/server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "verify": "node scripts/verify-apis.js"
+  },
+  "keywords": [
+    "social-media",
+    "analytics",
+    "ai",
+    "youtube",
+    "instagram",
+    "tiktok",
+    "threads",
+    "gemini"
+  ],
+  "author": "Asistent Creator",
+  "license": "MIT",
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "axios": "^1.7.9",
+    "better-sqlite3": "^13.0.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "googleapis": "^144.0.0",
+    "node-cron": "^4.6.0",
+    "sqlite3": "^5.1.7"
+  }
+}

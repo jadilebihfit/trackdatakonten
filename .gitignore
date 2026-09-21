@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+
+# Environment — JANGAN PERNAH commit .env ke GitHub
+.env
+
+# Database (data lokal)
+data/*.db
+data/*.sqlite
+data/*.sqlite-wal
+data/*.sqlite-shm
+
+# Logs
+logs/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

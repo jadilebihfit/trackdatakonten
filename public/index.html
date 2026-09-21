@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Asistent Creator — Personal Content Intelligence</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            obsidian: '#07090D',
+            cardbg: '#0D1017',
+            cardhover: '#131722',
+            cardsubtle: '#11151E',
+            bordercolor: 'rgba(255, 255, 255, 0.08)',
+            accentcyan: '#38BDF8',
+            accentcyanlight: '#7DD3FC',
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-obsidian text-slate-100 min-h-screen antialiased selection:bg-sky-500/20 selection:text-sky-300">
+
+  <!-- Ambient Glow -->
+  <div class="fixed top-0 left-1/2 -translate-x-1/2 w-[90vw] sm:w-[750px] h-[250px] sm:h-[300px] bg-gradient-to-b from-sky-500/10 via-transparent to-transparent blur-3xl pointer-events-none -z-10"></div>
+
+  <div class="max-w-7xl mx-auto px-3.5 sm:px-6 lg:px-8 py-4 sm:py-6 space-y-6 sm:space-y-8">
+
+    <!-- FLOATING RESPONSIVE NAVBAR -->
+    <header class="sticky top-3 sm:top-5 z-40">
+      <div class="glass-nav rounded-2xl sm:rounded-full px-3.5 sm:px-6 py-2.5 sm:py-3 flex flex-wrap items-center justify-between gap-2 shadow-2xl shadow-black/70">
+        
+        <!-- Brand Logo -->
+        <div class="flex items-center space-x-2.5 sm:space-x-3">
+          <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white flex items-center justify-center shadow-lg shadow-white/10 shrink-0">
+            <i class="fa-solid fa-chart-simple text-obsidian text-[11px] sm:text-xs font-bold"></i>
+          </div>
+          <div>
+            <span class="font-extrabold text-xs sm:text-sm tracking-widest uppercase text-white">Asistent<span class="text-accentcyan">Creator</span></span>
+            <span class="hidden sm:block text-[9px] tracking-widest text-slate-400 uppercase font-semibold -mt-0.5">Personal Analytics</span>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs (Scrollable on small mobile) -->
+        <nav class="order-3 sm:order-2 w-full sm:w-auto flex items-center justify-center space-x-1 bg-black/60 sm:bg-black/50 border border-white/5 rounded-full p-1 overflow-x-auto no-scrollbar">
+          <button onclick="switchTab('overview')" id="nav-overview" class="tab-btn active px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-semibold text-white bg-white/10 border border-white/15 transition-all whitespace-nowrap">
+            Overview Analytics
+          </button>
+          <button onclick="switchTab('contents')" id="nav-contents" class="tab-btn px-3 sm:px-4 py-1 sm:py-1.5 rounded-full text-[11px] sm:text-xs font-medium text-slate-400 hover:text-white transition-all whitespace-nowrap">
+            Semua Konten & Insights
+          </button>
+        </nav>
+
+        <!-- Action Button -->
+        <div class="order-2 sm:order-3 flex items-center space-x-2">
+          <button onclick="openQuickScrapeModal()" class="btn-primary-luxury px-3 sm:px-4 py-1.5 rounded-full text-[11px] sm:text-xs font-bold flex items-center gap-1.5">
+            <i class="fa-solid fa-plus text-[10px]"></i>
+            <span class="hidden sm:inline">Tarik Konten dari URL</span>
+            <span class="sm:hidden">Tarik URL</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ============================================================== -->
+    <!-- TAB 1: OVERVIEW DASHBOARD -->
+    <!-- ============================================================== -->
+    <main id="tab-overview" class="space-y-6 sm:space-y-8">
+      
+      <!-- Hero Headline -->
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4 border-b border-white/5 pb-4 sm:pb-6">
+        <div>
+          <span class="text-[9px] sm:text-[10px] font-bold tracking-widest uppercase text-accentcyan flex items-center gap-1.5">
+            <i class="fa-solid fa-circle text-[5px] sm:text-[6px] text-accentcyan"></i> Personal Performance Tracker
+          </span>
+          <h1 class="text-xl sm:text-2xl md:text-3xl font-extrabold text-white tracking-tight mt-1 sm:mt-1.5">
+            Dashboard Performa <span class="accent-gradient-text">Semua Konten</span>
+          </h1>
+          <p class="text-[11px] sm:text-xs text-slate-400 mt-1 max-w-xl leading-relaxed">
+            Agregasi seluruh data tayangan, likes, komentar, saves (bookmark), dan shares dari postingan YouTube, TikTok, Instagram, dan Threads.
+          </p>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 shrink-0 w-full sm:w-auto">
+          <!-- Timeframe Selector -->
+          <div class="flex items-center bg-cardsubtle border border-white/10 rounded-xl px-2.5 py-1.5 gap-2 w-full sm:w-auto justify-between">
+            <span class="text-[10px] text-slate-500 font-semibold uppercase tracking-wider whitespace-nowrap"><i class="fa-regular fa-calendar mr-1 text-accentcyan"></i>Periode:</span>
+            <select id="timeframe-overview" onchange="onTimeframeChange(this.value)" class="bg-transparent text-xs font-bold text-white outline-none cursor-pointer">
+              <option value="today" class="bg-obsidian text-white">Hari Ini (Today)</option>
+              <option value="yesterday" class="bg-obsidian text-white">Kemarin (Yesterday)</option>
+              <option value="7d" class="bg-obsidian text-white">7 Hari Terakhir</option>
+              <option value="28d" class="bg-obsidian text-white" selected>28 Hari Terakhir</option>
+              <option value="90d" class="bg-obsidian text-white">90 Hari Terakhir</option>
+              <option value="365d" class="bg-obsidian text-white">365 Hari (1 Thn)</option>
+              <option value="all" class="bg-obsidian text-white">Sepanjang Waktu (Lifetime)</option>
+              <option value="custom" class="bg-obsidian text-accentcyan font-bold">Kustom Tanggal...</option>
+            </select>
+          </div>
+
+          <!-- Custom Date Range Bar (Hidden by default) -->
+          <div id="custom-date-container" class="hidden flex items-center bg-cardsubtle border border-accentcyan/40 rounded-xl px-2.5 py-1 gap-2 flex-wrap sm:flex-nowrap">
+            <input type="date" id="custom-date-from" class="bg-transparent text-xs text-white outline-none border border-white/10 rounded px-1.5 py-0.5" />
+            <span class="text-xs text-slate-500">-</span>
+            <input type="date" id="custom-date-to" class="bg-transparent text-xs text-white outline-none border border-white/10 rounded px-1.5 py-0.5" />
+            <button onclick="applyCustomDateRange()" class="px-2.5 py-1 bg-accentcyan text-obsidian text-[11px] font-extrabold rounded-lg hover:brightness-110 transition">Terapkan</button>
+          </div>
+
+          <button onclick="refreshAllData()" class="btn-secondary-luxury w-full sm:w-auto px-3.5 py-1.5 sm:py-2 rounded-xl text-xs font-medium flex items-center justify-center gap-2">
+            <i class="fa-solid fa-arrows-rotate text-accentcyan text-[11px]"></i>
+            <span>Refresh Data</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- KEY PERFORMANCE CARDS (2 cols on mobile, 5 cols on desktop) -->
+      <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-4">
+        
+        <!-- Metric 1: Total Views -->
+        <div class="card-luxury p-3.5 sm:p-5 rounded-xl sm:rounded-2xl relative overflow-hidden">
+          <div class="flex items-center justify-between">
+            <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Tayangan</span>
+            <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-white/5 text-white flex items-center justify-center border border-white/10 shrink-0">
+              <i class="fa-solid fa-eye text-[10px] sm:text-xs"></i>
+            </div>
+          </div>
+          <div class="mt-2.5 sm:mt-4">
+            <h3 id="stat-views" class="text-lg sm:text-2xl font-black text-white tracking-tight">0</h3>
+            <span class="text-[10px] sm:text-[11px] text-accentcyan mt-0.5 sm:mt-1 inline-flex items-center gap-1 font-semibold truncate">
+              <i class="fa-solid fa-arrow-trend-up text-[9px]"></i> +24.8% periode
+            </span>
+          </div>
+        </div>
+
+        <!-- Metric 2: Total Saves -->
+        <div class="card-luxury p-3.5 sm:p-5 rounded-xl sm:rounded-2xl relative overflow-hidden">
+          <div class="flex items-center justify-between">
+            <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Saves</span>
+            <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-white/5 text-accentcyan flex items-center justify-center border border-white/10 shrink-0">
+              <i class="fa-solid fa-bookmark text-[10px] sm:text-xs"></i>
+            </div>
+          </div>
+          <div class="mt-2.5 sm:mt-4">
+            <h3 id="stat-saves" class="text-lg sm:text-2xl font-black text-white tracking-tight">0</h3>
+            <span class="text-[10px] sm:text-[11px] text-slate-400 mt-0.5 sm:mt-1 block truncate">Faktor retensi konten</span>
+          </div>
+        </div>
+
+        <!-- Metric 3: Total Shares -->
+        <div class="card-luxury p-3.5 sm:p-5 rounded-xl sm:rounded-2xl relative overflow-hidden">
+          <div class="flex items-center justify-between">
+            <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400">Total Shares</span>
+            <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-white/5 text-white flex items-center justify-center border border-white/10 shrink-0">
+              <i class="fa-solid fa-share-nodes text-[10px] sm:text-xs"></i>
+            </div>
+          </div>
+          <div class="mt-2.5 sm:mt-4">
+            <h3 id="stat-shares" class="text-lg sm:text-2xl font-black text-white tracking-tight">0</h3>
+            <span class="text-[10px] sm:text-[11px] text-slate-400 mt-0.5 sm:mt-1 inline-flex items-center gap-1 truncate">
+              <i class="fa-solid fa-chart-line text-accentcyan text-[9px]"></i> Distribusi aktif
+            </span>
+          </div>
+        </div>
+
+        <!-- Metric 4: Total Likes & Comments -->
+        <div class="card-luxury p-3.5 sm:p-5 rounded-xl sm:rounded-2xl relative overflow-hidden">
+          <div class="flex items-center justify-between">
+            <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400">Likes & Komen</span>
+            <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-white/5 text-white flex items-center justify-center border border-white/10 shrink-0">
+              <i class="fa-solid fa-heart text-[10px] sm:text-xs"></i>
+            </div>
+          </div>
+          <div class="mt-2.5 sm:mt-4">
+            <h3 id="stat-likes-comments" class="text-lg sm:text-2xl font-black text-white tracking-tight">0</h3>
+            <span class="text-[10px] sm:text-[11px] text-slate-400 mt-0.5 sm:mt-1 block truncate" id="stat-comments-breakdown">0 likes • 0 komen</span>
+          </div>
+        </div>
+
+        <!-- Metric 5: Combined Engagement Rate (Full width on 2-col mobile) -->
+        <div class="col-span-2 sm:col-span-2 lg:col-span-1 card-luxury p-3.5 sm:p-5 rounded-xl sm:rounded-2xl relative overflow-hidden">
+          <div class="flex items-center justify-between">
+            <span class="text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-slate-400">Avg Engagement</span>
+            <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg bg-accentcyan/10 text-accentcyan flex items-center justify-center border border-accentcyan/20 shrink-0">
+              <i class="fa-solid fa-chart-pie text-[10px] sm:text-xs"></i>
+            </div>
+          </div>
+          <div class="mt-2.5 sm:mt-4 flex items-baseline justify-between sm:block">
+            <h3 id="stat-engagement" class="text-lg sm:text-2xl font-black text-accentcyan tracking-tight">0%</h3>
+            <span class="text-[10px] sm:text-[11px] text-slate-400 mt-0.5 sm:mt-1 block font-medium">Rata-rata interaksi</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- PLATFORMS SUMMARY CARDS -->
+      <div>
+        <div class="flex items-center justify-between mb-2.5 sm:mb-3">
+          <h3 class="text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-slate-400">Ringkasan Platform</h3>
+          <span class="text-[10px] sm:text-[11px] text-slate-500 font-medium">YouTube • TikTok • Instagram • Threads</span>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4" id="channel-quick-cards">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+
+      <!-- CHARTS SECTION -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+        
+        <!-- Line Chart: 14 Days Growth -->
+        <div class="lg:col-span-2 card-luxury p-4 sm:p-6 rounded-xl sm:rounded-2xl">
+          <div class="flex items-center justify-between mb-4 sm:mb-6">
+            <div>
+              <h4 class="text-xs sm:text-sm font-bold text-white tracking-wide">Tren Pertumbuhan Konten (14 Hari)</h4>
+              <p class="text-[10px] sm:text-xs text-slate-400">Pertumbuhan tayangan (views), bookmarks (saves), dan likes</p>
+            </div>
+          </div>
+          <div class="relative w-full h-56 sm:h-72">
+            <canvas id="trendChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Doughnut Chart: Engagement Breakdown -->
+        <div class="card-luxury p-4 sm:p-6 rounded-xl sm:rounded-2xl flex flex-col justify-between">
+          <div>
+            <h4 class="text-xs sm:text-sm font-bold text-white tracking-wide">Komposisi Interaksi Audiens</h4>
+            <p class="text-[10px] sm:text-xs text-slate-400 mb-4 sm:mb-6">Porsi Saves (Bookmark) vs Likes vs Shares</p>
+            <div class="relative w-full h-48 sm:h-56 flex items-center justify-center">
+              <canvas id="compositionChart"></canvas>
+            </div>
+          </div>
+          <div class="pt-3 sm:pt-4 border-t border-white/5 text-center mt-3 sm:mt-0">
+            <p class="text-[10px] sm:text-xs text-slate-300 leading-relaxed">
+              <span class="text-accentcyan font-bold">Rasio Save-to-View:</span> Menunjukkan seberapa tinggi nilai simpan edukatif dari konten kamu.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TOP PERFORMING CONTENT SECTION -->
+      <div class="card-luxury p-4 sm:p-6 rounded-xl sm:rounded-2xl space-y-3 sm:space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3 border-b border-white/5 pb-3 sm:pb-4">
+          <div>
+            <h3 class="text-sm sm:text-base font-bold text-white">Konten Teratas Berdasarkan Metrik</h3>
+            <p class="text-[10px] sm:text-xs text-slate-400">Postingan dan video dengan performa interaksi tertinggi</p>
+          </div>
+          <button onclick="switchTab('contents')" class="text-xs text-accentcyan hover:text-accentcyanlight font-semibold inline-flex items-center gap-1 self-start sm:self-auto">
+            <span>Lihat Semua Konten</span>
+            <i class="fa-solid fa-arrow-right text-[10px]"></i>
+          </button>
+        </div>
+
+        <div class="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+          <table class="w-full text-left text-xs text-slate-300 min-w-[620px]">
+            <thead class="text-[10px] uppercase font-bold tracking-wider text-slate-400 border-b border-white/5 bg-black/30">
+              <tr>
+                <th class="py-2.5 sm:py-3 px-3 sm:px-4">Konten / Video</th>
+                <th class="py-2.5 sm:py-3 px-2.5 sm:px-3">Platform</th>
+                <th class="py-2.5 sm:py-3 px-2.5 sm:px-3">Views</th>
+                <th class="py-2.5 sm:py-3 px-2.5 sm:px-3 text-accentcyan font-bold">Saves</th>
+                <th class="py-2.5 sm:py-3 px-2.5 sm:px-3">Shares</th>
+                <th class="py-2.5 sm:py-3 px-2.5 sm:px-3">Likes / Komen</th>
+                <th class="py-2.5 sm:py-3 px-2.5 sm:px-3">Engagement</th>
+              </tr>
+            </thead>
+            <tbody id="top-videos-body" class="divide-y divide-white/5">
+              <!-- Populated by JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- ============================================================== -->
+    <!-- TAB 2: ALL CONTENTS & INSIGHTS -->
+    <!-- ============================================================== -->
+    <section id="tab-contents" class="space-y-4 sm:space-y-6 hidden">
+      <div class="card-luxury p-4 sm:p-6 rounded-xl sm:rounded-2xl space-y-4 sm:space-y-5">
+        
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 border-b border-white/5 pb-3 sm:pb-4">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-white">Semua Konten & Detail Insight</h2>
+            <p class="text-[10px] sm:text-xs text-slate-400">Database lengkap postingan dari seluruh platform</p>
+          </div>
+
+          <!-- Filters (Responsive Stack/Wrap) -->
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 w-full md:w-auto">
+            <select id="filter-platform" onchange="applyFilters()" class="bg-cardsubtle text-xs text-slate-200 border border-white/10 rounded-xl px-3 py-2 outline-none focus:border-accentcyan w-full">
+              <option value="all">Semua Platform (YT, IG, Threads)</option>
+              <option value="youtube">YouTube</option>
+              <option value="instagram">Instagram</option>
+              <option value="threads">Threads</option>
+            </select>
+
+            <select id="filter-timeframe" onchange="applyFilters()" class="bg-cardsubtle text-xs text-slate-200 border border-white/10 rounded-xl px-3 py-2 outline-none focus:border-accentcyan w-full">
+              <option value="today">Hari Ini (Today)</option>
+              <option value="yesterday">Kemarin (Yesterday)</option>
+              <option value="7d">7 Hari Terakhir</option>
+              <option value="28d" selected>28 Hari Terakhir</option>
+              <option value="90d">90 Hari Terakhir</option>
+              <option value="365d">365 Hari (1 Thn)</option>
+              <option value="all">Sepanjang Waktu (Lifetime)</option>
+            </select>
+
+            <select id="filter-sort" onchange="applyFilters()" class="bg-cardsubtle text-xs text-slate-200 border border-white/10 rounded-xl px-3 py-2 outline-none focus:border-accentcyan w-full">
+              <option value="published_at">Urutkan: Terbaru</option>
+              <option value="views">Urutkan: Views Tertinggi</option>
+              <option value="saves">Urutkan: Saves Tertinggi</option>
+              <option value="shares">Urutkan: Shares Tertinggi</option>
+              <option value="likes">Urutkan: Likes Terbanyak</option>
+              <option value="comments">Urutkan: Komentar Terbanyak</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Full Table -->
+        <div class="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+          <table class="w-full text-left text-xs text-slate-300 min-w-[680px]">
+            <thead class="text-[10px] uppercase font-bold tracking-wider text-slate-400 border-b border-white/5 bg-black/30">
+              <tr>
+                <th class="py-2.5 sm:py-3.5 px-3 sm:px-4">Judul / Caption Konten</th>
+                <th class="py-2.5 sm:py-3.5 px-2.5 sm:px-3">Platform</th>
+                <th class="py-2.5 sm:py-3.5 px-2.5 sm:px-3">Views</th>
+                <th class="py-2.5 sm:py-3.5 px-2.5 sm:px-3 text-accentcyan font-bold">Saves</th>
+                <th class="py-2.5 sm:py-3.5 px-2.5 sm:px-3">Shares</th>
+                <th class="py-2.5 sm:py-3.5 px-2.5 sm:px-3">Likes</th>
+                <th class="py-2.5 sm:py-3.5 px-2.5 sm:px-3">Komentar</th>
+                <th class="py-2.5 sm:py-3.5 px-2.5 sm:px-3 text-accentcyan">Eng. Rate</th>
+                <th class="py-2.5 sm:py-3.5 px-3 sm:px-4 text-center">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="video-table-body" class="divide-y divide-white/5">
+              <!-- Populated by JavaScript -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- MODAL: PLATFORM DETAIL -->
+  <div id="platform-detail-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-3.5 sm:p-4">
+    <div class="card-luxury w-full max-w-2xl rounded-2xl shadow-2xl border-white/10 flex flex-col max-h-[90vh]">
+
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-white/5 shrink-0 gap-3">
+        <div class="flex items-center space-x-3 min-w-0">
+          <div id="pdm-icon" class="w-9 h-9 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-sm text-white shrink-0"></div>
+          <div class="min-w-0 truncate">
+            <h3 id="pdm-title" class="text-sm font-extrabold text-white tracking-wide truncate"></h3>
+            <p id="pdm-subtitle" class="text-[10px] text-slate-400 mt-0.5 truncate"></p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 shrink-0">
+          <!-- Modal Timeframe Selector -->
+          <select id="pdm-timeframe" onchange="onModalTimeframeChange(this.value)" class="bg-cardsubtle border border-white/10 text-[11px] font-semibold text-slate-200 rounded-lg px-2.5 py-1 outline-none focus:border-accentcyan cursor-pointer">
+            <option value="today" class="bg-obsidian">Hari Ini</option>
+            <option value="yesterday" class="bg-obsidian">Kemarin</option>
+            <option value="7d" class="bg-obsidian">7 Hari</option>
+            <option value="28d" class="bg-obsidian" selected>28 Hari</option>
+            <option value="90d" class="bg-obsidian">90 Hari</option>
+            <option value="365d" class="bg-obsidian">365 Hari</option>
+            <option value="all" class="bg-obsidian">Lifetime</option>
+          </select>
+
+          <button onclick="closePlatformModal()" class="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-white/5 transition">
+            <i class="fa-solid fa-xmark text-sm"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats Row -->
+      <div id="pdm-stats" class="grid grid-cols-3 sm:grid-cols-4 gap-3 px-5 sm:px-6 py-4 border-b border-white/5 shrink-0"></div>
+
+      <!-- Content List -->
+      <div class="overflow-y-auto flex-1 px-5 sm:px-6 py-4 space-y-2">
+        <p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-3">Semua Konten</p>
+        <div id="pdm-content-list" class="space-y-2">
+          <!-- populated by JS -->
+        </div>
+        <div id="pdm-loading" class="text-center py-8 text-slate-500 text-xs">
+          <i class="fa-solid fa-rotate fa-spin mr-2"></i>Memuat...
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: SYNC / TARIK KONTEN -->
+  <div id="quick-scrape-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-3.5 sm:p-4">
+    <div class="card-luxury w-full max-w-md rounded-2xl p-5 sm:p-6 space-y-4 shadow-2xl border-white/10">
+      <div class="flex items-center justify-between border-b border-white/5 pb-3">
+        <div class="flex items-center space-x-2">
+          <i class="fa-solid fa-rotate text-accentcyan text-xs"></i>
+          <h3 class="text-xs sm:text-sm font-bold text-white">Sinkronisasi Manual</h3>
+        </div>
+        <button onclick="closeQuickScrapeModal()" class="text-slate-400 hover:text-white p-1">
+          <i class="fa-solid fa-xmark text-sm"></i>
+        </button>
+      </div>
+
+      <p class="text-[11px] sm:text-xs text-slate-300 leading-relaxed">
+        Tarik ulang semua data terbaru dari Instagram, Threads, dan YouTube sekarang. Sinkronisasi otomatis sudah berjalan setiap 6 jam.
+      </p>
+
+      <div class="space-y-3">
+        <button onclick="handleQuickScrape()" id="btn-submit-scrape" class="w-full btn-primary-luxury py-2 sm:py-2.5 rounded-xl text-xs font-bold">
+          <i class="fa-solid fa-rotate mr-1.5"></i>Sinkronkan Sekarang
+        </button>
+      </div>
+
+      <div id="scrape-result-status" class="text-[11px] sm:text-xs text-center hidden"></div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
