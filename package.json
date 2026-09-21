@@ -4,6 +4,9 @@
   "description": "Multi-Platform Social Media Analytics & AI Content Auditor",
   "main": "src/server.js",
   "type": "commonjs",
+  "engines": {
+    "node": "20.x"
+  },
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
@@ -24,13 +27,12 @@
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
     "axios": "^1.7.9",
-    "better-sqlite3": "^13.0.3",
+    "better-sqlite3": "^11.8.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "firebase-admin": "^14.4.0",
+    "firebase-admin": "^12.7.0",
     "googleapis": "^144.0.0",
-    "node-cron": "^4.6.0",
-    "sqlite3": "^5.1.7"
+    "node-cron": "^4.6.0"
   }
 }
