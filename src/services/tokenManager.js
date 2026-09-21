@@ -205,11 +205,22 @@ async function getAccessToken(platform) {
     return getYouTubeAccessToken();
   }
 
-  const state = getToken(platform);
-  if (!state) throw new Error(`Token for ${platform} not found. Please check .env`);
-  if (state.status === 'expired') throw new Error(`Token for ${platform} is expired. Re-auth required.`);
+  let state = getToken(platform);
+  if (!state) {
+    bootstrapTokensFromEnv();
+    state = getToken(platform);
+  }
 
-  return state.access_token;
+  if (state && state.access_token) {
+    if (state.status === 'expired') throw new Error(`Token for ${platform} is expired. Re-auth required.`);
+    return state.access_token;
+  }
+
+  const envKey = platform === 'instagram' ? 'IG_ACCESS_TOKEN' : 'THREADS_ACCESS_TOKEN';
+  const envToken = process.env[envKey];
+  if (envToken) return envToken;
+
+  throw new Error(`Token for ${platform} not found. Please check .env`);
 }
 
 // ── Cek dan refresh token yang mendekati expired (dipanggil tiap hari oleh scheduler) ──

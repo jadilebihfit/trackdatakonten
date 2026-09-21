@@ -122,3 +122,5 @@ async function startup() {
 }
 
 startup();
+
+module.exports = app;

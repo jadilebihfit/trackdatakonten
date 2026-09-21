@@ -26,6 +26,7 @@ const express = require('express');
 const router = express.Router();
 const { getDb } = require('../db/database');
 const { syncPlatform, syncAll, getSyncStatus, isDataStale, isLocked } = require('../services/syncEngine');
+const { bootstrapTokensFromEnv } = require('../services/tokenManager');
 
 // ── Helper: validasi platform ────────────────────────────────────────────────
 const VALID_PLATFORMS = ['instagram', 'threads', 'youtube', 'all'];
@@ -71,10 +72,18 @@ function parseDateRange(query) {
 // ════════════════════════════════════════════════════════════════════════════
 // GET /api/overview
 // ════════════════════════════════════════════════════════════════════════════
-router.get('/overview', (req, res) => {
+router.get('/overview', async (req, res) => {
   try {
     const { from, to } = parseDateRange(req.query);
     const db = getDb();
+    bootstrapTokensFromEnv();
+
+    // Jika DB kosong (misal baru deploy di Vercel), lakukan initial sync otomatis
+    const contentCount = db.prepare('SELECT COUNT(*) AS c FROM content').get().c;
+    if (contentCount === 0) {
+      console.log('[API] DB kosong di Vercel, melakukan initial sync...');
+      await syncAll('initial_vercel').catch(err => console.error('[API] Initial sync error:', err.message));
+    }
 
     // KPI aggregat per platform (berdasarkan konten yang dipublikasikan dalam rentang tanggal)
     const kpis = db.prepare(`
