@@ -121,6 +121,15 @@ async function startup() {
   }
 }
 
-startup();
+if (!process.env.VERCEL) {
+  startup();
+} else {
+  try {
+    getDb();
+    bootstrapTokensFromEnv();
+  } catch (e) {
+    console.warn('[Vercel] Pre-init note:', e.message);
+  }
+}
 
 module.exports = app;
